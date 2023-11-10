@@ -10,7 +10,7 @@ import { StateMachine } from "@foxglove/schemas";
 
 function prepare_graph(fsm_data: StateMachine) {
   let nodes = [];
-  let edges: any[] = [];
+  let edges = [];
 
   // get current state
   let current_state = 0;
