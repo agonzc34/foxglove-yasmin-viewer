@@ -1,10 +1,10 @@
 {
   "name": "foxgloveYasminViewer",
-  "displayName": "foxgloveYasminViewer",
-  "description": "",
-  "publisher": "unknown",
+  "displayName": "Yasmin Viewer",
+  "description": "A Yasmin Viewer for Foxglove Studio",
+  "publisher": "agonzc34",
   "homepage": "",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "UNLICENSED",
   "main": "./dist/extension.js",
   "keywords": [],
@@ -52,6 +52,7 @@
     "cytoscape-cola": "^2.5.1",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-klay": "^3.1.4",
+    "primereact": "^10.0.9",
     "react-cytoscapejs": "^2.0.0"
   }
 }

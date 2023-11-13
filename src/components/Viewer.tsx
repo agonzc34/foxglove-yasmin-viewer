@@ -1,4 +1,5 @@
-import { Grid, TextField, Autocomplete, Button } from "@mui/material";
+import { Grid } from "@mui/material";
+import { ScrollPanel } from "primereact/scrollpanel";
 import { MessageEvent, Topic, Immutable, PanelExtensionContext, SettingsTreeAction } from "@foxglove/studio";
 import { StateMachine } from "@foxglove/schemas";
 import { useState, useEffect, useLayoutEffect, useCallback } from "react";
@@ -128,24 +129,27 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
             justifyContent: "center",
             alignItems: "center",
             margin: "5px",
+            maxHeight: "100%"
         }}
     >
-        <Grid container spacing={3}>
-            {panelState.selectedFsm === "ALL" ? (
-                fsmList?.map((fsm: StateMachine) => {
-                    return (
-                        <Grid item xs={12} key={fsm.states[0]?.name}>
-                            <FSM fsm_data={fsm} alone={false} />
-                        </Grid>
-                    );
-                })
-            ) : (
-                <Grid item xs={12}>
-                    <FSM fsm_data={currFsmData} alone={true} />
-                </Grid>
-            )}
-            
-        </Grid>
+        <ScrollPanel style={{width: '100%', height: '92vh'}}>
+            <Grid container spacing={3}>
+                {panelState.selectedFsm === "ALL" ? (
+                    fsmList?.map((fsm: StateMachine) => {
+                        return (
+                            <Grid item xs={12} key={fsm.states[0]?.name}>
+                                <FSM fsm_data={fsm} alone={false} />
+                            </Grid>
+                        );
+                    })
+                ) : (
+                    <Grid item xs={12}>
+                        <FSM fsm_data={currFsmData} alone={true} />
+                    </Grid>
+                )}
+                
+            </Grid>
+        </ScrollPanel>
     </div>
     );
 }
