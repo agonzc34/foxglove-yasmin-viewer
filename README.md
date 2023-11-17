@@ -14,6 +14,16 @@ To install extension dependencies, run `npm` from the root of the extension pack
 npm install
 ```
 
+You also need a modified version of the foxglove/schemas library, to generate the interfaces needed for the application to read the State Machine Messages. Download the extension at: [Foxglove Schema](https://github.com/foxglove/schemas) and place it next to the Foxglove Viewer directory.
+
+Install the extension dependencies, copy the [setup/schemas.ts](setup/schemas.ts) in the Yasmin Viewer repo to the foxglove/schemas repo in internal/schemas.ts.
+
+To generate the new interfaces for Foxglove, run:
+
+```sh
+npm run update-generated-files
+```
+
 To build and install the extension into your local Foxglove Studio desktop app, run:
 
 ```sh

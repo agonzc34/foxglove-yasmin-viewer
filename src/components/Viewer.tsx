@@ -7,7 +7,6 @@ import FSM from "./FSM";
 import ReactDOM from "react-dom";
 
 type PanelState = {
-    listFsms: string[];
     selectedFsm: string;
     [key: string]: string | string[];
 }
@@ -15,13 +14,12 @@ type PanelState = {
 function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
     const [topic, setTopics] = useState<Immutable<Topic[]> | undefined>();
     const [messages, setMessages] = useState<Immutable<MessageEvent[]> | undefined>();
-    
+
     const [fsmList, setFsmList] = useState<StateMachine[]>([]);
     const [currFsmData, setCurrFsmData] = useState<StateMachine | undefined>();
 
     const [panelState, setPanelState] = useState<PanelState>(() => {
-        return { 
-            listFsms: [],
+        return {
             selectedFsm: "ALL",
         }
     });
@@ -35,14 +33,14 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
             if (path[1] === "clear") {
                 setPanelState((prev) => {
                     let newState = { ...prev };
-                    newState['listFsms'] = [];
                     newState['selectedFsm'] = "ALL";
+                    setFsmList(_ => []);
                     return newState;
                 })
             } else {
                 setPanelState((prev) => {
                     let newState = { ...prev };
-                    newState['selectedFsm'] = value as string;
+                    newState['selectedFsm'] = (value as string).trim();
                     setCurrFsmData(fsmList?.find((fsm: StateMachine) => {
                         return fsm.states[0]?.name === value;
                     }));
@@ -55,7 +53,9 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
     useEffect(() => {
         context.saveState(panelState);
 
-        const fsmOptions = [{ label: "ALL", value: "ALL" }].concat(panelState.listFsms.map(fsm => ({ label: fsm ?? "None", value: fsm ?? "None" })));
+        const fsmOptions = [{ label: "ALL", value: "ALL" }].concat(fsmList?.map((fsm: StateMachine) => {
+            return { label: fsm.states[0]?.name.trim() ?? "None", value: fsm.states[0]?.name.trim() ?? "None" };
+        }) ?? []);
 
         context.updatePanelSettingsEditor({
             actionHandler,
@@ -79,7 +79,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
                 }
             }
         })
-    }, [panelState, actionHandler, context]);
+    }, [panelState, actionHandler, context, fsmList]);
 
     useLayoutEffect(() => {
         context.onRender = (renderState, done) => {
@@ -102,16 +102,10 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
         setFsmList(prev => {
             let formerMsgs = prev?.filter((msg: StateMachine) => {
                 return !receivedMsgs?.some((receivedMsg: MessageEvent<StateMachine>) => {
-                    return receivedMsg.message.states[0]?.name === msg.states[0]?.name;
+                    return receivedMsg.message.states[0]?.name.trim() === msg.states[0]?.name.trim();
                 });
             }) ?? [];
             let newFsmList = formerMsgs.concat(receivedMsgs.map((msg) => msg.message));
-
-            setPanelState((prev) => {
-                let newState = { ...prev };
-                newState['listFsms'] = newFsmList.map(fsm => fsm.states[0]?.name ?? "None");
-                return newState;
-            });
 
             return newFsmList.sort((a, b) => {
                 return a.states[0]!.name?.localeCompare(b.states[0]!.name ?? "None") ?? 0;
@@ -132,7 +126,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
             maxHeight: "100%"
         }}
     >
-        <ScrollPanel style={{width: '100%', height: '92vh'}}>
+        <ScrollPanel style={{ width: '100%', height: '92vh' }}>
             <Grid container spacing={3}>
                 {panelState.selectedFsm === "ALL" ? (
                     fsmList?.map((fsm: StateMachine) => {
@@ -147,7 +141,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
                         <FSM fsm_data={currFsmData} alone={true} />
                     </Grid>
                 )}
-                
+
             </Grid>
         </ScrollPanel>
     </div>
