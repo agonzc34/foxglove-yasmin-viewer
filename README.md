@@ -4,6 +4,8 @@
 
 [Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels. Extensions are authored in TypeScript using the `@foxglove/studio` SDK.
 
+Tested in Node v20.9.0 and npm v10.1.0
+
 ## Develop
 
 Extension development uses the `npm` package manager to install development dependencies and run build scripts.
