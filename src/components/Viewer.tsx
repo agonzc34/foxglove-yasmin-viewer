@@ -2,27 +2,35 @@ import { Grid } from "@mui/material";
 import { ScrollPanel } from "primereact/scrollpanel";
 import { MessageEvent, Topic, Immutable, PanelExtensionContext, SettingsTreeAction } from "@foxglove/studio";
 import { StateMachine } from "@foxglove/schemas";
-import { useState, useEffect, useLayoutEffect, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import FSM from "./FSM";
 import ReactDOM from "react-dom";
 
 type PanelState = {
     selectedFsm: string;
-    [key: string]: string | string[];
+    states: { [key: string]: StateMachine };
+    [key: string]: string | { [key: string]: StateMachine };
 }
 
 function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
     const [topic, setTopics] = useState<Immutable<Topic[]> | undefined>();
     const [messages, setMessages] = useState<Immutable<MessageEvent[]> | undefined>();
 
-    const [fsmList, setFsmList] = useState<StateMachine[]>([]);
-    const [currFsmData, setCurrFsmData] = useState<StateMachine | undefined>();
+    const [numberOfRenders, setNumberOfRenders] = useState<number>(0);
 
     const [panelState, setPanelState] = useState<PanelState>(() => {
-        return {
+        return context.initialState as PanelState ?? {
             selectedFsm: "ALL",
-        }
+            states: {},
+        };
     });
+
+    const stateMachinesNames = useMemo(() => {
+        let names = Object.keys(panelState.states) ?? [];
+        return names.concat("ALL").sort((a, b) => {
+            return a.localeCompare(b);
+        });
+    }, [panelState]);
 
     const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
 
@@ -31,31 +39,23 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
             const { path, value } = action.payload;
 
             if (path[1] === "clear") {
-                setPanelState((prev) => {
-                    let newState = { ...prev };
-                    newState['selectedFsm'] = "ALL";
-                    setFsmList(_ => []);
-                    return newState;
-                })
+                setPanelState({
+                    selectedFsm: "ALL",
+                    states: {},
+                });
+                setNumberOfRenders(numberOfRenders + 1);
             } else {
-                setPanelState((prev) => {
-                    let newState = { ...prev };
-                    newState['selectedFsm'] = (value as string).trim();
-                    setCurrFsmData(fsmList?.find((fsm: StateMachine) => {
-                        return fsm.states[0]?.name === value;
-                    }));
-                    return newState;
-                })
+                setPanelState({
+                    ...panelState,
+                    selectedFsm: value as string,
+                });
+                setNumberOfRenders(numberOfRenders + 1);
             }
         }
-    }, [fsmList]);
+    }, [context, panelState]);
 
     useEffect(() => {
         context.saveState(panelState);
-
-        const fsmOptions = [{ label: "ALL", value: "ALL" }].concat(fsmList?.map((fsm: StateMachine) => {
-            return { label: fsm.states[0]?.name.trim() ?? "None", value: fsm.states[0]?.name.trim() ?? "None" };
-        }) ?? []);
 
         context.updatePanelSettingsEditor({
             actionHandler,
@@ -67,7 +67,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
                         fsmList: {
                             label: "Finite State Machines",
                             input: "select",
-                            options: fsmOptions,
+                            options: stateMachinesNames.map((name) => ({ label: name, value: name })),
                             value: panelState.selectedFsm,
                         },
                         clear: {
@@ -79,7 +79,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
                 }
             }
         })
-    }, [panelState, actionHandler, context, fsmList]);
+    }, [panelState, actionHandler, context]);
 
     useLayoutEffect(() => {
         context.onRender = (renderState, done) => {
@@ -93,28 +93,27 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
 
         context.subscribe([{ topic: "/fsm_viewer" }]);
 
-
     }, [context]);
 
     useEffect(() => {
         let receivedMsgs: MessageEvent<StateMachine>[] = messages as MessageEvent<StateMachine>[] ?? [];
 
-        setFsmList(prev => {
-            let formerMsgs = prev?.filter((msg: StateMachine) => {
-                return !receivedMsgs?.some((receivedMsg: MessageEvent<StateMachine>) => {
-                    return receivedMsg.message.states[0]?.name.trim() === msg.states[0]?.name.trim();
-                });
-            }) ?? [];
-            let newFsmList = formerMsgs.concat(receivedMsgs.map((msg) => msg.message));
+        let prevState = { ...panelState };
+        let modified = false;
 
-            return newFsmList.sort((a, b) => {
-                return a.states[0]!.name?.localeCompare(b.states[0]!.name ?? "None") ?? 0;
-            });
-        });
+        for (let msg of receivedMsgs) {
+            let fsm = msg.message;
+            if (fsm) {
+                prevState.states[fsm.states[0]?.name!] = fsm;
+            }
+        }
+
+        setPanelState(prevState);
     }, [messages]);
 
     useEffect(() => {
         renderDone?.();
+        setNumberOfRenders(prev => prev + 1);
     }, [renderDone]);
 
     return (<div
@@ -126,10 +125,14 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
             maxHeight: "100%"
         }}
     >
-        <ScrollPanel style={{ width: '100%', height: '92vh' }}>
+
+        <ScrollPanel style={{ height: '92vh', width: '100%' }}>
+            <div style={{ width: "100%", textAlign: "center" }}>
+                <h1>Yasmin Viewer {numberOfRenders}</h1>
+            </div>
             <Grid container spacing={3}>
                 {panelState.selectedFsm === "ALL" ? (
-                    fsmList?.map((fsm: StateMachine) => {
+                    Object.values(panelState.states).map((fsm: StateMachine) => {
                         return (
                             <Grid item xs={12} key={fsm.states[0]?.name}>
                                 <FSM fsm_data={fsm} alone={false} />
@@ -138,7 +141,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
                     })
                 ) : (
                     <Grid item xs={12}>
-                        <FSM fsm_data={currFsmData} alone={true} />
+                        <FSM fsm_data={panelState.states[panelState.selectedFsm]} alone={true} />
                     </Grid>
                 )}
 
