@@ -19,7 +19,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
     const [numberOfRenders, setNumberOfRenders] = useState<number>(0);
 
     const [panelState, setPanelState] = useState<PanelState>(() => {
-        return context.initialState as PanelState ?? {
+        return {
             selectedFsm: "ALL",
             states: {},
         };
