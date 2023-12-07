@@ -1,4 +1,4 @@
-# foxgloveYasminViewer
+# foxglove-yasmin-viewer
 
 ## _A Foxglove Studio Extension_
 
