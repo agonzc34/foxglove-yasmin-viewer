@@ -2,7 +2,7 @@
 
 ## _A Foxglove Studio Extension_
 
-Foxglove Yasmin Viewer is a custom Foxglove Extension for visualizing in real time the Finite Machine State for the [Yasmin State Machine]([https://github.com/foxglove/studio](https://github.com/uleroboticsgroup/yasmin). 
+Foxglove Yasmin Viewer is a custom Foxglove Extension for visualizing in real time the Finite Machine State for the [Yasmin State Machine](https://github.com/foxglove/studio](https://github.com/uleroboticsgroup/yasmin). 
 
 Tested in Node v20.9.0 and npm v10.1.0
 
