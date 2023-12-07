@@ -1,4 +1,4 @@
-# foxgloveYasminViewer version history
+# foxglove-yasmin-viewer version history
 
 ## 1.0.0
 
