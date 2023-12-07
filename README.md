@@ -2,7 +2,7 @@
 
 ## _A Foxglove Studio Extension_
 
-[Foxglove Studio](https://github.com/foxglove/studio) allows developers to create extensions, or custom code that is loaded and executed inside the Foxglove Studio application. This can be used to add custom panels. Extensions are authored in TypeScript using the `@foxglove/studio` SDK.
+Foxglove Yasmin Viewer is a custom Foxglove Extension for visualizing in real time the Finite Machine State for the [Yasmin State Machine]([https://github.com/foxglove/studio](https://github.com/uleroboticsgroup/yasmin). 
 
 Tested in Node v20.9.0 and npm v10.1.0
 
@@ -34,20 +34,6 @@ npm run local-install
 
 Open the `Foxglove Studio` desktop (or `ctrl-R` to refresh if it is already open). Your extension is installed and available within the app.
 
-## Package
+### Another option
 
-Extensions are packaged into `.foxe` files. These files contain the metadata (package.json) and the build code for the extension.
-
-Before packaging, make sure to set `name`, `publisher`, `version`, and `description` fields in _package.json_. When ready to distribute the extension, run:
-
-```sh
-npm run package
-```
-
-This command will package the extension into a `.foxe` file in the local directory.
-
-## Publish
-
-You can publish the extension for the public marketplace or privately for your organization.
-
-See documentation here: https://foxglove.dev/docs/studio/extensions/publish#packaging-your-extension
+Download the latest release of the repo and unzip the file inside the {foxglove_install_path}/extensions folder
