@@ -1,9 +1,9 @@
 {
-  "name": "foxgloveYasminViewer",
+  "name": "foxglove-yasmin-viewer",
   "displayName": "Yasmin Viewer",
   "description": "A Yasmin Viewer for Foxglove Studio",
   "publisher": "agonzc34",
-  "homepage": "",
+  "homepage": "https://github.com/agonzc34/foxglove-yasmin-viewer",
   "version": "1.0.0",
   "license": "UNLICENSED",
   "main": "./dist/extension.js",
