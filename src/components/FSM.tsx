@@ -162,7 +162,7 @@ function FSM({fsm_data, alone}: {fsm_data: StateMachine | undefined, alone: bool
   let [nodes, edges] = prepare_graph(fsm_data);
   // let [nodes, edges] = example_graph();
 
-  let height = "70vh";
+  let height = "40vh";
   if (alone) {
     height = "80vh";
   }

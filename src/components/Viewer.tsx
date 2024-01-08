@@ -32,8 +32,6 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
     const [topic, setTopics] = useState<Immutable<Topic[]> | undefined>();
     const [messages, setMessages] = useState<Immutable<MessageEvent[]> | undefined>();
 
-    const [numberOfRenders, setNumberOfRenders] = useState<number>(0);
-
     const [panelState, setPanelState] = useState<PanelState>(() => {
         return {
             selectedFsm: "ALL",
@@ -55,17 +53,19 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
             const { path, value } = action.payload;
 
             if (path[1] === "clear") {
-                setPanelState({
-                    selectedFsm: "ALL",
-                    states: {},
+                setPanelState((_) => {
+                    return {
+                        selectedFsm: "ALL",
+                        states: {},
+                    }
                 });
-                setNumberOfRenders(numberOfRenders + 1);
             } else {
-                setPanelState({
-                    ...panelState,
-                    selectedFsm: value as string,
+                setPanelState((prev) => {
+                    return{
+                        ...prev,
+                        selectedFsm: value as string,
+                    }
                 });
-                setNumberOfRenders(numberOfRenders + 1);
             }
         }
     }, [context, panelState]);
@@ -84,6 +84,7 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
                             label: "Finite State Machines",
                             input: "select",
                             options: stateMachinesNames.map((name) => ({ label: name, value: name })),
+                            // options: [{ label: "ALL", value: "ALL" }],
                             value: panelState.selectedFsm,
                         },
                         clear: {
@@ -129,7 +130,6 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
 
     useEffect(() => {
         renderDone?.();
-        setNumberOfRenders(prev => prev + 1);
     }, [renderDone]);
 
     return (<div
@@ -144,13 +144,13 @@ function Viewer({ context }: { context: PanelExtensionContext }): JSX.Element {
 
         <ScrollPanel style={{ height: '92vh', width: '100%' }}>
             <div style={{ width: "100%", textAlign: "center" }}>
-                <h1>Yasmin Viewer {numberOfRenders}</h1>
+                <h1>Yasmin Viewer</h1>
             </div>
             <Grid container spacing={3}>
-                {panelState.selectedFsm === "ALL" ? (
+                {panelState.selectedFsm === "ALL" && panelState.states != undefined ? (
                     Object.values(panelState.states).map((fsm: StateMachine) => {
                         return (
-                            <Grid item xs={12} key={fsm.states[0]?.name}>
+                            <Grid item xs={6} key={fsm.states[0]?.name}>
                                 <FSM fsm_data={fsm} alone={false} />
                             </Grid>
                         );
