@@ -5,7 +5,7 @@
   "publisher": "agonzc34",
   "homepage": "https://github.com/agonzc34/foxglove-yasmin-viewer",
   "version": "1.0.1",
-  "license": "UNLICENSED",
+  "license": "GPL-3",
   "main": "./dist/extension.js",
   "keywords": [],
   "scripts": {
